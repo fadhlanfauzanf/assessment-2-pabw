@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Asessment 2 PABW</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        thead th {
+            background-color: #f2f2f2;
+        }
+
+        .form-container {
+            margin-bottom: 20px;
+        }
+
+        .form-container input[type="text"],
+        .form-container input[type="submit"] {
+            padding: 6px;
+        }
+
+        .success-notification {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <form id="addForm">
+            <input type="text" id="nameInput" placeholder="Name" required>
+            <input type="text" id="countryInput" placeholder="Country" required>
+            <input type="text" id="cityInput" placeholder="City" required>
+            <input type="submit" value="Add">
+        </form>
+    </div>
+
+    <div class="success-notification" id="successNotification"></div>
+
+    <table id="networkTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Country</th>
+                <th>City</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // memasukan data table
+            var table = $('#networkTable').DataTable({
+                "ajax": {
+                    "url": "http://api.citybik.es/v2/networks",
+                    "dataSrc": "networks"
+                },
+                "columns": [
+                    { "data": "name" },
+                    { "data": "location.country" },
+                    { "data": "location.city" }
+                ],
+                "order": [[0, "asc"]]
+            });
+
+            // form submit
+            $('#addForm').submit(function(e) {
+                e.preventDefault();
+                var name = $('#nameInput').val();
+                var country = $('#countryInput').val();
+                var city = $('#cityInput').val();
+
+                // memvalidasi input
+                if (name === '' || country === '' || city === '') {
+                    alert('Please fill in all fields.');
+                    return;
+                }
+
+                // menambah baris baru ke data tabel
+                table.row.add({
+                    "name": name,
+                    "location": {
+                        "country": country,
+                        "city": city
+                    }
+                }).draw(false);
+
+                // menghapus form input
+                $('#nameInput').val('');
+                $('#countryInput').val('');
+                $('#cityInput').val('');
+
+                // memberi notif sukses apabila berhasil memasukkan data
+                $('#successNotification').text('Data successfully added.').show();
+                setTimeout(function() {
+                    $('#successNotification').hide();
+                }, 3000);
+            });
+        });
+    </script>
+</body>
+</html>
